@@ -1,6 +1,6 @@
-# DeepML
+# BrainML
 ## Version 0.0.1
-DeepML is python library for building neural networks, is using tensorflow core.
+BrainML is python library for building neural networks, is using tensorflow core.
 
 
 ## Install
