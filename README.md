@@ -12,3 +12,7 @@ or
 ```
 pip install tensorflow
 ```
+After you install tensorflow, you can install DeepML by using:
+```
+pip install deepml
+```
