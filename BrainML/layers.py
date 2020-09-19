@@ -1,40 +1,73 @@
 import tensorflow as tf
 
-class Dense:
 
-    def __init__(self,numberOfNodes,shape=None,activation=None,x_data=None):
-        self.numberOfNodes=numberOfNodes
-        self.activation=activation 
-        self.shapeData=shape
-        self.type="Dense"
-        self.output=None
 
-    def calculate(self,dim1,dim2,dataCalculate):
-        self.weights = tf.Variable(tf.cast(tf.random.normal([dim1,dim2]),tf.float64),dtype='float64')
-        self.biases  =  tf.Variable(tf.cast(tf.random.normal([dim2]),tf.float64),dtype='float64')
-        self.output=tf.keras.activations.sigmoid(tf.add(tf.matmul(dataCalculate, self.weights), self.biases))
-        return self.output
+class Conv2D:
+  def __init__(self, 
+               filters,
+               kernel_size,
+               strides=(1, 1),
+               padding='valid',
+               data_format=None,
+               dilation_rate=(1, 1),
+               groups=1,
+               activation=None,
+               use_bias=True,
+               kernel_initializer='glorot_uniform',
+               bias_initializer='zeros',
+               kernel_regularizer=None,
+               bias_regularizer=None,
+               activity_regularizer=None,
+               kernel_constraint=None,
+               bias_constraint=None
+               ):
+    self.layer=tf.keras.layers.Conv2D(
+                filters,
+                kernel_size,
+                strides,
+                padding,
+                data_format,
+                dilation_rate,
+                activation,
+                use_bias,
+                kernel_initializer,
+                bias_initializer,
+                kernel_regularizer,
+                bias_regularizer,
+                activity_regularizer,
+                kernel_constraint,
+                bias_constraint)
+
+
+class InputLayer:
+  def __init__(self,shape):
+      self.layer=tf.keras.Input(shape=shape)
+
+
+class Flatten:
+  def __init__(self):
+      self.layer=tf.keras.layers.Flatten()
+
+
+class MaxPolling2D:
+  def __init__(self,pool_size):
+      self.layer=tf.keras.layers.MaxPooling2D(pool_size=pool_size)
+
 
 class Dropout:
+  def __init__(self,value):
+    self.layer=tf.keras.layers.Dropout(value)
 
-    def __init__(self,rate,x=None,noise_shape=None,seed=1, name=None):
-        self.rate=rate
-        self.noise_shape=noise_shape
-        self.seed=seed
-        self.name=name
-        self.type="Dropout"
-        self.output=None
+
+class fully_connected:
+  def __init__(self, units, activation=None,shape=None, use_bias=True, kernel_initializer='glorot_uniform',bias_initializer='zeros', kernel_regularizer=None, bias_regularizer=None,activity_regularizer=None, kernel_constraint=None, bias_constraint=None,value_to_feed=None):
+    '''if shape!=None:
+      self.shape=shape
+    else:
+      self.shape=None
+    self.value_to_feed=value_to_feed
+    if self.value_to_feed!=None
+      self.layer=layers.Dense(units, activation, use_bias, kernel_initializer, bias_initializer,kernel_regularizer, bias_regularizer,activity_regularizer, kernel_constraint, bias_constraint)(value_to_feed)
+    else:'''
+    self.layer=tf.keras.layers.Dense(units, activation, use_bias, kernel_initializer, bias_initializer,kernel_regularizer, bias_regularizer,activity_regularizer, kernel_constraint, bias_constraint)
     
-    def calculate(self,x):
-        value=tf.nn.dropout(x, self.rate, noise_shape=self.noise_shape, seed=self.seed, name=self.name)
-        self.output=value
-
-
-##not sure here may be come back later
-class Flatten:
-
-    def __init__(self):
-        self.flat=None
-    
-    def calculate(self,x):
-        self.flat=tf.reshape(x,[-1, x.get_shape().as_list()[0]])

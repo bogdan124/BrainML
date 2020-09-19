@@ -1,71 +1,52 @@
 import tensorflow as tf
-from activation import Activator
-from layers import Dense,Dropout
-from optimizer import Optimizer
+from BrainML.activation import Activator
+from BrainML.layers import *
+from BrainML.optimizer import Optimizer
+from tensorflow.python.util import deprecation
+##deprecation._PRINT_DEPRECATION_WARNINGS = False
+##tf.compat.v1.disable_eager_execution()
 
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
+class Network: 
+  def __init__(self,layers=None, name=None):
+    self.model=None
+    self.output=None
+    self.layers=layers
+    self.compile=None
+    self.name=name
+    newLayers=[]
+    ##if layers[0].shape!=None:
+    ##  newLayers.append(tf.keras.Input(input_shape=layers[0].shape))
+    for i in range(0,len(layers)):
+      newLayers.append(self.layers[i].layer)
+      ##newLayers[i].value_to_feed=
+    self.model=tf.keras.Sequential()##newLayers, name
+    for i in newLayers:
+      self.model.add(i)
+    
+    
+  
+  def train(self,x=None, y=None, batch_size=None, epochs=1, verbose=1, callbacks=None,
+    validation_split=0.0, validation_data=None, shuffle=True, class_weight=None,
+    sample_weight=None, initial_epoch=0, steps_per_epoch=None,
+    validation_steps=None, validation_batch_size=None, validation_freq=1,
+    max_queue_size=10, workers=1, use_multiprocessing=False,optimizer='rmsprop',
+    loss=None, metrics=None, loss_weights=None,weighted_metrics=None, run_eagerly=None):
+    if loss==None:
+      loss="mse"
+    elif metrics==None or metrics[0]=="all":
+      metrics=["mae", "acc"]
+    else:
+      optimizer="rmsprop"
+    
+    self.compile=self.model.compile(optimizer, loss, metrics, loss_weights,weighted_metrics, run_eagerly)##initial_epoch,steps_per_epoch
+    self.output=self.model.fit(x, y, batch_size, epochs, verbose, callbacks,validation_split, validation_data, shuffle, class_weight, sample_weight, initial_epoch, validation_steps, validation_batch_size, validation_freq,  max_queue_size, workers, use_multiprocessing)
+    return self.output
 
-class Model:
-  def __init__(self):
-    self.xData=tf.compat.v1.placeholder("float64", name = "x")
-    self.yData=tf.compat.v1.placeholder("float64", name = "y")
-    self.Output=None
-    self.layers=None
-    self.trainning=False
-
-  def Sequential(self,layers,name=None):##xData,yData,
-      ##xData=tf.cast(xData,tf.float64) 
-      ##yData=tf.cast(yData,tf.float64) 
-      xData=self.xData
-      yData=self.yData
-      storeShape=None
-      savePrevOutput=None
-      saveNodesNumber=None
-      self.layers=layers
-      for i in range(0,len(layers)):
-          if i==0:
-              storeShape=layers[i].shapeData
-              savePrevOutput=layers[i].calculate(storeShape[1],layers[i].numberOfNodes,xData)
-              saveNodesNumber=layers[i].numberOfNodes
-          elif i!=len(layers) or i!=0:
-              if layers[i].type=="Dense":
-                savePrevOutput=layers[i].calculate(saveNodesNumber,layers[i].numberOfNodes,savePrevOutput)
-                saveNodesNumber=layers[i].numberOfNodes
-              elif layers[i].type=="Dropout" and  self.trainning==True:
-                print(savePrevOutput)
-                savePrevOutput=layers[i].calculate(x=savePrevOutput)
-                print(layers[i].output ,savePrevOutput)
-          elif i==len(layers):
-              savePrevOutput=layers[i].calculate(saveNodesNumber,layers[i].numberOfNodes,savePrevOutput)
-      self.Output=layers[i].output        
-      return layers[i].output 
-
-  def compile(self,optimizer=None,loss=None):
-      save=self.Output
-      self.e = tf.reduce_mean(tf.math.squared_difference(self.yData, save))
-      self.train = optimizer.minimize(self.e)
-
-  def fit(self,x=None,y=None,batch_size=32,epochs=10,display=None):
-      self.trainning=True
-      save=self.Output
-      self.epochs=epochs
-      init = tf.compat.v1.global_variables_initializer()
-      sess = tf.compat.v1.Session()
-      sess.run(init)
-      
-
-      for i in range (self.epochs):
-          error = sess.run(self.train, feed_dict={self.xData: x, self.yData: y})
-
-          for j in display:
-            if j=="epoch":
-              print('\nEpoch: ' + str(i))
-            elif j=="error":
-              print('\nError: ' + str(sess.run(self.e, feed_dict={self.xData: x, self.yData: y})))
-            elif j=="all":
-               print('\nEpoch: ' + str(i)+'\tError: ' + str(sess.run(self.e, feed_dict={self.xData: x, self.yData: y})))
-
-          if  i % self.epochs == 0:
-              for el in sess.run(save, feed_dict={self.xData: x, self.yData: y}):
-                  print('    ',el)
-      sess.close() 
+  def Summary(self):
+    self.model.summary()
+  
+##  if __name__ == "__main__":
+##   pass
